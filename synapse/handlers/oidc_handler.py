@@ -728,7 +728,7 @@ class OidcProvider:
         # to work around https://twistedmatrix.com/trac/ticket/10088
         cookie_header = (
             b"%s=%s; Path=/_synapse/client/oidc; Max-Age=3600; HttpOnly; "
-            "SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie.encode("utf-8"))
+            b"SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie.encode("utf-8"))
         )
 
         request.cookies.append(cookie_header)
