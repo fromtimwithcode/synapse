@@ -718,18 +718,20 @@ class OidcProvider:
                 ui_auth_session_id=ui_auth_session_id,
             ),
         )
-        request.addCookie(
-            SESSION_COOKIE_NAME,
-            cookie,
-            path="/_synapse/client/oidc",
-            max_age="3600",
-            httpOnly=True,
-            # we set sameSite=None to ensure that the cookie is included in any POST
-            # requests to our callback (as is used with `response_mode=form_post`.
-            # secure=True is necessary for sameSite=None
-            sameSite="None",
-            secure=True,
+
+        # we set SameSite=None to ensure that the cookie is included in any POST
+        # requests to our callback (as is used with `response_mode=form_post`.
+        #
+        # secure=True is necessary for sameSite=None
+        #
+        # we have to build the cookie by hand rather than calling request.addCookie
+        # to work around https://twistedmatrix.com/trac/ticket/10088
+        cookie_header = (
+            "%s=%s; Path=/_synapse/client/oidc; Max-Age=3600; HttpOnly; "
+            "SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie)
         )
+
+        request.cookies.append(cookie_header.encode("utf-8"))
 
         metadata = await self.load_metadata()
         authorization_endpoint = metadata.get("authorization_endpoint")
