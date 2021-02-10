@@ -162,11 +162,9 @@ class OidcHandler:
         # Remove the cookie. There is a good chance that if the callback failed
         # once, it will fail next time and the code will already be exchanged.
         # Removing it early avoids spamming the provider with token requests.
-        request.addCookie(
-            SESSION_COOKIE_NAME,
-            b"",
-            path="/_synapse/oidc",
-            expires="Thu, Jan 01 1970 00:00:00 UTC",
+        request.cookies.append(
+            b"%s=; Path=/_synapse/client/oidc; Expires=Thu, Jan 01 1970 00:00:00 UTC; "
+            b"HttpOnly; SameSite=None; Secure" % (SESSION_COOKIE_NAME,)
         )
 
         # Check for the state query parameter
@@ -726,12 +724,10 @@ class OidcProvider:
         #
         # we have to build the cookie by hand rather than calling request.addCookie
         # to work around https://twistedmatrix.com/trac/ticket/10088
-        cookie_header = (
+        request.cookies.append(
             b"%s=%s; Path=/_synapse/client/oidc; Max-Age=3600; HttpOnly; "
             b"SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie.encode("utf-8"))
         )
-
-        request.cookies.append(cookie_header)
 
         metadata = await self.load_metadata()
         authorization_endpoint = metadata.get("authorization_endpoint")
