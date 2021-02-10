@@ -167,8 +167,6 @@ class OidcHandler:
             b"",
             path="/_synapse/oidc",
             expires="Thu, Jan 01 1970 00:00:00 UTC",
-            httpOnly=True,
-            sameSite="lax",
         )
 
         # Check for the state query parameter
@@ -726,7 +724,11 @@ class OidcProvider:
             path="/_synapse/client/oidc",
             max_age="3600",
             httpOnly=True,
-            sameSite="lax",
+            # we set sameSite=None to ensure that the cookie is included in any POST
+            # requests to our callback (as is used with `response_mode=form_post`.
+            # secure=True is necessary for sameSite=None
+            sameSite="None",
+            secure=True,
         )
 
         metadata = await self.load_metadata()
