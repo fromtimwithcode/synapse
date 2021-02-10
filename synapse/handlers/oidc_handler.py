@@ -727,11 +727,11 @@ class OidcProvider:
         # we have to build the cookie by hand rather than calling request.addCookie
         # to work around https://twistedmatrix.com/trac/ticket/10088
         cookie_header = (
-            "%s=%s; Path=/_synapse/client/oidc; Max-Age=3600; HttpOnly; "
-            "SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie)
+            b"%s=%s; Path=/_synapse/client/oidc; Max-Age=3600; HttpOnly; "
+            "SameSite=None; Secure" % (SESSION_COOKIE_NAME, cookie.encode("utf-8"))
         )
 
-        request.cookies.append(cookie_header.encode("utf-8"))
+        request.cookies.append(cookie_header)
 
         metadata = await self.load_metadata()
         authorization_endpoint = metadata.get("authorization_endpoint")
